@@ -1,0 +1,71 @@
+# The main entry point of your workflow.
+# After configuring, running snakemake -n in a clone of this repository should successfully execute a dry-run of the workflow.
+
+# must have smrttools installed and smrtlink/smrtcmds/bin available in path
+
+from pathlib import Path
+
+BARCODE_SAMPLES = [
+    "bc1012",
+    "bc1016",
+    "bc1017",
+    "bc1018",
+    "bc1019",
+    "bc1020",
+    "bc1021",
+    "bc1022",
+]  # glob_wildcards("input_data/raw_reads/{sample}_1_sequence.fastq.gz").sample
+batch = "batch1"
+
+# report: "report/workflow.rst"
+
+global_dir = Path("/nobackup1/kve/2021_PacBioGenomeClosing/batch1")
+
+raw_reads_path = global_dir / "raw" / "1_A01" / "m54030R1_210528_175343.subreadset.xml"
+raw_barcode_path = global_dir / "raw" / "raw_barcodes" / "Sequel_384_barcodes_v1.fasta"
+strain_ids_tsv = global_dir / "raw" / "metadata" / "{}_strain_IDs.tsv".format(batch)
+
+analysis_dir = global_dir / "analysis"
+results_dir = global_dir / "results"
+
+pb_analysis_dir = analysis_dir / "pacbio"
+alt_analysis_dir = analysis_dir / "alternative"
+done_file_dir = analysis_dir / "done_files"
+
+pb_barcode_dir = pb_analysis_dir / "barcode_dataset"
+pb_demultiplexing_dir = pb_analysis_dir / "pb_demultiplexed"
+pb_assembly_dir = pb_analysis_dir / "flye_assembly"
+pb_methylation_dir = pb_analysis_dir / "methylation"
+pb_gorg_dir = pb_analysis_dir / "classification"
+
+lima_dir = alt_analysis_dir / "lima_demultiplexed"
+flye_dir = alt_analysis_dir / "assembly"
+alt_gorg_dir = alt_analysis_dir / "classification"
+
+log_dir = Path("logs")
+lima_log_dir = log_dir / "lima"
+
+# need to add checkpoint analysis -- luckily have barcode file already
+
+rule all:
+    input:
+        expand(
+            done_file_dir / "pb_assembly.{barcode_sample}.done",
+            barcode_sample=BARCODE_SAMPLES,
+        ),
+        # expand(
+        #     done_file_dir / "pb_methylation.{barcode_sample}.done",
+        #     barcode_sample=BARCODE_SAMPLES,
+        # ), 
+        # expand(
+        #     done_file_dir / "flye_assembly.{barcode_sample}.done",
+        #     barcode_sample=BARCODE_SAMPLES,
+        # ),
+        expand(
+            done_file_dir / "pb_classification.{barcode_sample}.done",
+            barcode_sample=BARCODE_SAMPLES,
+        ), 
+        results_dir / "genome_df.tsv",
+
+
+include: "rules/all_rules.smk"
