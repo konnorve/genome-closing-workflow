@@ -30,7 +30,7 @@
 #SBATCH -o logs/pb_assem/%j_%a_slurm_output.txt
 #SBATCH -e logs/pb_assem/%j_%a_slurm_error.txt
 
-demul_dir="/nobackup1/kve/2021_HIFI_Genome_Closing_Project/batch2/analysis/pacbio/pb_demul/outputs"
+demul_dir="/nobackup1/kve/2021_HIFI_Genome_Closing_Project/batch2/analysis/pacbio/cromwell_demul/outputs"
 assem_dir="/nobackup1/kve/2021_HIFI_Genome_Closing_Project/batch2/analysis/pacbio/pb_assembly"
 
 # batch 1: "bc1012" "bc1016" "bc1017" "bc1018" "bc1019" "bc1020" "bc1021" "bc1022"
@@ -47,4 +47,4 @@ mkdir -p ${out_dir}
 echo ${subread_set}
 echo ${out_dir}
 
-pbcromwell run pb_assembly_microbial -e ${raw_reads_path} --task-option microasm_genome_size=2000000 --task-option microasm_coverage=30 --output-dir ${out_dir} --overwrite
+pbcromwell run pb_assembly_microbial -e ${subread_set} --task-option microasm_genome_size=2000000 --task-option microasm_coverage=30 --output-dir ${out_dir} --overwrite
