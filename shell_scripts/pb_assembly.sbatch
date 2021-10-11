@@ -6,7 +6,7 @@
 #SBATCH -C centos7
 #
 # wall clock limit:
-#SBATCH --time 12:00:00
+#SBATCH --time 24:00:00
 #
 # Partition to use:
 #SBATCH --partition sched_mit_chisholm
@@ -14,7 +14,7 @@
 # Number of tasks/cores for job
 #SBATCH -n 10
 #
-#SBATCH --comment="fly assembly"
+#SBATCH --comment="pacbio assembly"
 #
 # emails all notifications
 #SBATCH --mail-type=ALL
@@ -30,8 +30,8 @@
 #SBATCH -o logs/pb_assem/%j_%a_slurm_output.txt
 #SBATCH -e logs/pb_assem/%j_%a_slurm_error.txt
 
-demul_out_path="/nobackup1/kve/2021_HIFI_Genome_Closing_Project/batch2/analysis/pacbio/cromwell_demul/"
-fly_dir="/nobackup1/kve/2021_HIFI_Genome_Closing_Project/batch2/analysis/pacbio/pb_assembly/"
+demul_dir="/nobackup1/kve/2021_HIFI_Genome_Closing_Project/batch2/analysis/pacbio/pb_demul/outputs"
+assem_dir="/nobackup1/kve/2021_HIFI_Genome_Closing_Project/batch2/analysis/pacbio/pb_assembly"
 
 # batch 1: "bc1012" "bc1016" "bc1017" "bc1018" "bc1019" "bc1020" "bc1021" "bc1022"
 # batch 2: "bc1015" "bc1016" "bc1017" "bc1018" "bc1019" "bc1020" "bc1021" "bc1022"
@@ -39,12 +39,12 @@ barcode="bc${SLURM_ARRAY_TASK_ID}"
 
 echo ${barcode}
 
-fastq_path=${lima_dir}/"lima_demultiplexed.${barcode}.fastq"
-fly_bc_dir=${fly_dir}/${barcode}
+subread_set=${demul_dir}/"demultiplex.${barcode}--${barcode}.subreadset.xml"
+out_dir=${assem_dir}/${barcode}
 
-mkdir -p ${fly_bc_dir}
+mkdir -p ${out_dir}
 
-echo ${fastq_path}
-echo ${fly_bc_dir}
+echo ${subread_set}
+echo ${out_dir}
 
-pbcromwell run pb_assembly_microbial -e ${raw_reads_path} --task-option microasm_genome_size=2000000 --task-option microasm_coverage=30 --output-dir ${demul_out_path} --overwrite
+pbcromwell run pb_assembly_microbial -e ${raw_reads_path} --task-option microasm_genome_size=2000000 --task-option microasm_coverage=30 --output-dir ${out_dir} --overwrite
